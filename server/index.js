@@ -2,6 +2,7 @@ const connectDB = require("./config/db");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -11,6 +12,9 @@ connectDB();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Routes
+app.use("/api/auth", authRoutes);
 
 // Simple API route
 app.get("/api/health", (req, res) => {
