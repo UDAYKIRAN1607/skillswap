@@ -5,7 +5,7 @@ with future AI-powered skill recommendations.
 
 ## 🚀 Tech Stack
 
-**Frontend:** React.js, TypeScript. 
+**Frontend:** React.js,TypeScript. 
 **Backend:** Node.js, Express.js  
 **Database:** MongoDB Atlas  
 **AI:** LLM APIs integration planned  
