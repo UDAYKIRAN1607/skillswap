@@ -1,4 +1,4 @@
-# SkillSwap 🚀
+# SkillSwap
 
 SkillSwap is a full-stack web application designed to enable users to showcase their skills, discover others’ skills, and collaborate through a structured skill-exchange platform.
 
