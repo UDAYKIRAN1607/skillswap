@@ -95,20 +95,46 @@
 // src/pages/Dashboard.tsx
 import React, { useEffect, useState } from "react";
 import type { User } from "./types";
+import { apiRequest } from "./api";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
     const navigate = useNavigate();
 
+    // useEffect(() => {
+    //     const stored = localStorage.getItem("user");
+    //     if (!stored) {
+    //         navigate("/login");
+    //         return;
+    //     }
+    //     setUser(JSON.parse(stored));
+    // }, [navigate]);
     useEffect(() => {
-        const stored = localStorage.getItem("user");
-        if (!stored) {
-            navigate("/login");
-            return;
+        async function verifyUser() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                navigate("/login");
+                return;
+            }
+
+            try {
+                await apiRequest<{ id: string }>("/users/me", "GET");
+
+                // optional: still use cached user for UI
+                const stored = localStorage.getItem("user");
+                if (stored) {
+                    setUser(JSON.parse(stored));
+                }
+            } catch {
+                localStorage.clear();
+                navigate("/login");
+            }
         }
-        setUser(JSON.parse(stored));
+
+        verifyUser();
     }, [navigate]);
+
 
     function handleLogout() {
         localStorage.clear();
