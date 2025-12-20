@@ -1,27 +1,65 @@
 # SkillSwap
 
-SkillSwap is a full-stack + GenAI platform that enables users to exchange skills with each other,
-with future AI-powered skill recommendations.
+SkillSwap is a full-stack web application designed to enable users to showcase their skills, discover others’ skills, and collaborate through a structured skill-exchange platform.
 
-## 🚀 Tech Stack
+The project is being developed with a scalable architecture and future-ready integrations.
 
-**Frontend:** React.js  
-**Backend:** Node.js, Express.js  
-**Database:** MongoDB Atlas  
-**AI:** LLM APIs integration planned  
-**Authentication:** JWT (planned)
+---
 
-## 🧩 Current Features
+## 🛠️ Tech Stack
 
-- Full-stack architecture set up
-- MongoDB Atlas connection established
-- API routing and backend structure
+### Frontend
+- **React.js**
+- **TypeScript**
+- Tailwind CSS (for styling)
 
-## 📅 Upcoming Features
+### Backend
+- **Node.js**
+- **Express.js**
 
-- User authentication & authorization
-- Skill listings & matching
-- AI-based recommendations
-- Chat system
+### Database
+- **MongoDB Atlas**
 
+### Authentication
+- **JWT-based authentication** (implemented)
 
+### AI (Planned)
+- **LLM API integration** for intelligent skill matching, recommendations, and assisted interactions
+
+---
+
+## ✨ Features
+
+### ✅ Implemented
+- User authentication (Signup & Login)
+- Secure password hashing using bcrypt
+- JWT-based authorization
+- Protected API routes
+- Backend health check API
+- Modular backend architecture (routes, controllers, middleware, models)
+
+### 🔄 In Progress
+- Frontend ↔ Backend integration
+- User dashboard data loading
+- Skill offer management
+
+### 🔮 Planned
+- Skill offer creation & discovery
+- AI-powered skill recommendations using LLM APIs
+- Advanced search and filtering
+- User profile enhancements
+
+---
+
+## 📂 Project Structure
+
+```text
+skillswap/
+├── client/        # React + TypeScript frontend
+└── server/        # Node.js + Express backend
+    ├── config/
+    ├── controllers/
+    ├── middleware/
+    ├── models/
+    ├── routes/
+    └── index.js
