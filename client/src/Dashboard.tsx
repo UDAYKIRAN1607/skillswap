@@ -97,11 +97,14 @@ import React, { useEffect, useState } from "react";
 import type { User } from "./types";
 import { apiRequest } from "./api";
 import { useNavigate } from "react-router-dom";
+import { AVAILABLE_SKILLS } from "./constants/skills";
 
 const Dashboard: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
     const navigate = useNavigate();
-
+    const [editing, setEditing] = useState(false);
+    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+    const [saving, setSaving] = useState(false);
     // useEffect(() => {
     //     const stored = localStorage.getItem("user");
     //     if (!stored) {
@@ -111,22 +114,48 @@ const Dashboard: React.FC = () => {
     //     setUser(JSON.parse(stored));
     // }, [navigate]);
     useEffect(() => {
+        if (user?.skills) {
+            setSelectedSkills(user.skills);
+        }
+    }, [user]);
+    const toggleSkill = (skill: string) => {
+        setSelectedSkills((prev) =>
+            prev.includes(skill)
+                ? prev.filter((s) => s !== skill)
+                : [...prev, skill]
+        );
+    };
+    const saveSkills = async () => {
+        try {
+            setSaving(true);
+
+            const updatedUser = await apiRequest<User>(
+                "/users/skills",
+                "PUT",
+                { skills: selectedSkills }
+            );
+
+            setUser(updatedUser);
+            setEditing(false);
+        } catch (error) {
+            console.error("Failed to update skills", error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    useEffect(() => {
         async function verifyUser() {
             const token = localStorage.getItem("token");
             if (!token) {
                 navigate("/login");
                 return;
             }
-
             try {
-                await apiRequest<{ id: string }>("/users/me", "GET");
-
-                // optional: still use cached user for UI
-                const stored = localStorage.getItem("user");
-                if (stored) {
-                    setUser(JSON.parse(stored));
-                }
-            } catch {
+                const me = await apiRequest<User>("/users/me", "GET");
+                setUser(me);
+            } catch (error) {
+                console.error("User verification failed", error);
                 localStorage.clear();
                 navigate("/login");
             }
@@ -141,9 +170,149 @@ const Dashboard: React.FC = () => {
         navigate("/login");
     }
 
+    // return (
+    //     <div className="min-h-screen bg-slate-950 text-slate-50">
+    //         <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+    //             {/* Top bar */}
+    //             <header className="rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur px-4 py-3 flex items-center justify-between shadow-lg shadow-slate-900/50">
+    //                 <div className="flex items-center gap-3">
+    //                     <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-500 flex items-center justify-center text-xs font-bold">
+    //                         SS
+    //                     </div>
+    //                     <div>
+    //                         <p className="text-sm font-semibold">SkillSwap</p>
+    //                         <p className="text-[11px] text-slate-400">Full-stack + GenAI</p>
+    //                     </div>
+    //                 </div>
+
+    //                 <div className="flex items-center gap-3">
+    //                     <span className="hidden text-xs text-slate-300 sm:inline">
+    //                         {user?.email}
+    //                     </span>
+    //                     <button
+    //                         onClick={handleLogout}
+    //                         className="rounded-full bg-slate-800 px-4 py-1.5 text-xs font-medium text-slate-50 hover:bg-slate-700 border border-slate-600 transition-shadow shadow-md hover:shadow-slate-800"
+    //                     >
+    //                         Logout
+    //                     </button>
+    //                 </div>
+    //             </header>
+
+    //             {/* Main content */}
+    //             <main className="space-y-4">
+    //                 {/* Hero text */}
+    //                 <section>
+    //                     <h1 className="text-3xl font-semibold mb-2 flex items-center gap-2">
+    //                         Hi, {user?.name ?? "Skill Swapper"} <span>👋</span>
+    //                     </h1>
+    //                     <p className="text-sm text-slate-400">
+    //                         Welcome back! Manage your skills, explore matches, and track your growth.
+    //                     </p>
+    //                 </section>
+
+    //                 <div className="mt-6">
+    //                     <div className="flex justify-between items-center mb-3">
+    //                         <h2 className="text-lg font-semibold">Your Skills</h2>
+    //                         <button
+    //                             onClick={() => setEditing(!editing)}
+    //                             className="text-blue-400 text-sm"
+    //                         >
+    //                             {editing ? "Cancel" : "Edit"}
+    //                         </button>
+    //                     </div>
+
+    //                     {!editing && (
+    //                         <div className="flex flex-wrap gap-2">
+    //                             {user?.skills && user.skills.length ? (
+    //                                 user.skills.map((skill) => (
+    //                                     <span
+    //                                         key={skill}
+    //                                         className="px-3 py-1 rounded-full bg-blue-900 text-blue-200 text-sm"
+    //                                     >
+    //                                         {skill}
+    //                                     </span>
+    //                                 ))
+    //                             ) : (
+    //                                 <p className="text-gray-400 text-sm">No skills added yet</p>
+    //                             )}
+    //                         </div>
+    //                     )}
+
+    //                     {editing && (
+    //                         <>
+    //                             <div className="flex flex-wrap gap-2 mb-4">
+    //                                 {AVAILABLE_SKILLS.map((skill) => (
+    //                                     <button
+    //                                         key={skill}
+    //                                         onClick={() => toggleSkill(skill)}
+    //                                         className={`px-3 py-1 rounded-full border text-sm
+    //                                          ${selectedSkills.includes(skill)
+    //                                                 ? "bg-blue-600 text-white border-blue-600"
+    //                                                 : "border-gray-600 text-gray-300"
+    //                                             }`}
+    //                                     >
+    //                                         {skill}
+    //                                     </button>
+    //                                 ))}
+    //                             </div>
+
+    //                             <button
+    //                                 onClick={saveSkills}
+    //                                 disabled={saving}
+    //                                 className="px-4 py-2 bg-green-600 rounded-md text-white text-sm"
+    //                             >
+    //                                 {saving ? "Saving..." : "Save Skills"}
+    //                             </button>
+    //                         </>
+    //                     )}
+    //                 </div>
+
+    //                 {/* Cards grid */}
+    //                 <section className="grid gap-6 lg:grid-cols-3">
+    //                     {/* Skills card */}
+    //                     <div className="lg:col-span-2 rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 shadow-lg shadow-slate-900/50">
+    //                         <h2 className="text-sm font-semibold mb-4 text-slate-300 tracking-wide">
+    //                             Your Skills
+    //                         </h2>
+
+    //                         {user?.skills && user.skills.length > 0 ? (
+    //                             <div className="flex flex-wrap gap-2">
+    //                                 {user.skills.map((s, i) => (
+    //                                     <span
+    //                                         key={i}
+    //                                         className="inline-flex items-center rounded-full border border-sky-600/50 bg-sky-600/15 px-3 py-1 text-xs text-sky-200 font-medium"
+    //                                     >
+    //                                         {s}
+    //                                     </span>
+    //                                 ))}
+    //                             </div>
+    //                         ) : (
+    //                             <p className="text-xs text-slate-500">
+    //                                 No skills added yet. Later we’ll build a profile editor here.
+    //                             </p>
+    //                         )}
+    //                     </div>
+
+    //                     {/* Next steps card */}
+    //                     <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 shadow-lg shadow-slate-900/50">
+    //                         <h2 className="text-sm font-semibold mb-4 text-slate-300 tracking-wide">
+    //                             Next Steps
+    //                         </h2>
+    //                         <ul className="space-y-3 text-xs text-slate-300 leading-relaxed">
+    //                             <li>• Add skill selection UI</li>
+    //                             <li>• Implement matching algorithm</li>
+    //                             <li>• Integrate GenAI for suggestions</li>
+    //                         </ul>
+    //                     </div>
+    //                 </section>
+    //             </main>
+    //         </div>
+    //     </div>
+    // );
     return (
         <div className="min-h-screen bg-slate-950 text-slate-50">
             <div className="mx-auto max-w-6xl px-4 py-6 space-y-6">
+
                 {/* Top bar */}
                 <header className="rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur px-4 py-3 flex items-center justify-between shadow-lg shadow-slate-900/50">
                     <div className="flex items-center gap-3">
@@ -171,7 +340,8 @@ const Dashboard: React.FC = () => {
 
                 {/* Main content */}
                 <main className="space-y-4">
-                    {/* Hero text */}
+
+                    {/* Hero */}
                     <section>
                         <h1 className="text-3xl font-semibold mb-2 flex items-center gap-2">
                             Hi, {user?.name ?? "Skill Swapper"} <span>👋</span>
@@ -183,30 +353,70 @@ const Dashboard: React.FC = () => {
 
                     {/* Cards grid */}
                     <section className="grid gap-6 lg:grid-cols-3">
-                        {/* Skills card */}
                         <div className="lg:col-span-2 rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 shadow-lg shadow-slate-900/50">
-                            <h2 className="text-sm font-semibold mb-4 text-slate-300 tracking-wide">
-                                Your Skills
-                            </h2>
 
-                            {user?.skills && user.skills.length > 0 ? (
+                            <div className="flex items-center justify-between mb-4">
+                                <h2 className="text-sm font-semibold text-slate-300 tracking-wide">
+                                    Your Skills
+                                </h2>
+                                <button
+                                    onClick={() => setEditing(!editing)}
+                                    className="text-xs text-sky-400 hover:underline"
+                                >
+                                    {editing ? "Cancel" : "Edit"}
+                                </button>
+                            </div>
+
+                            {/* VIEW MODE */}
+                            {!editing && (
                                 <div className="flex flex-wrap gap-2">
-                                    {user.skills.map((s, i) => (
-                                        <span
-                                            key={i}
-                                            className="inline-flex items-center rounded-full border border-sky-600/50 bg-sky-600/15 px-3 py-1 text-xs text-sky-200 font-medium"
-                                        >
-                                            {s}
-                                        </span>
-                                    ))}
+                                    {user?.skills && user.skills.length > 0 ? (
+                                        user.skills.map((skill) => (
+                                            <span
+                                                key={skill}
+                                                className="inline-flex items-center rounded-full border border-sky-600/50 bg-sky-600/15 px-3 py-1 text-xs text-sky-200 font-medium"
+                                            >
+                                                {skill}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-slate-500">
+                                            No skills added yet. Click <span className="text-sky-400">Edit</span> to add skills.
+                                        </p>
+                                    )}
                                 </div>
-                            ) : (
-                                <p className="text-xs text-slate-500">
-                                    No skills added yet. Later we’ll build a profile editor here.
-                                </p>
+                            )}
+
+                            {/* EDIT MODE */}
+                            {editing && (
+                                <>
+                                    <div className="flex flex-wrap gap-2 mb-4">
+                                        {AVAILABLE_SKILLS.map((skill) => (
+                                            <button
+                                                key={skill}
+                                                onClick={() => toggleSkill(skill)}
+                                                className={`px-3 py-1 rounded-full border text-xs font-medium transition
+                        ${selectedSkills.includes(skill)
+                                                        ? "bg-sky-600 text-white border-sky-600"
+                                                        : "border-slate-600 text-slate-300 hover:bg-slate-800"
+                                                    }`}
+                                            >
+                                                {skill}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <button
+                                        onClick={saveSkills}
+                                        disabled={saving}
+                                        className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+                                    >
+                                        {saving ? "Saving..." : "Save Skills"}
+                                    </button>
+                                </>
                             )}
                         </div>
-
+                        
                         {/* Next steps card */}
                         <div className="rounded-2xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 p-6 shadow-lg shadow-slate-900/50">
                             <h2 className="text-sm font-semibold mb-4 text-slate-300 tracking-wide">
@@ -223,7 +433,6 @@ const Dashboard: React.FC = () => {
             </div>
         </div>
     );
-
 };
 
 export default Dashboard;
