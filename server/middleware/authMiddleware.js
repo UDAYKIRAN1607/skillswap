@@ -21,26 +21,49 @@
 //     res.status(401).json({ message: "Token is not valid" });
 //   }
 // };
+// import jwt from "jsonwebtoken";
+// const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
+
+// const authMiddleware = (req, res, next) => {
+//   const authHeader = req.headers.authorization; // "Bearer <token>"
+
+//   if (!authHeader || !authHeader.startsWith("Bearer ")) {
+//     return res
+//       .status(401)
+//       .json({ message: "No token, authorization denied" });
+//   }
+//     const token = authHeader.split(" ")[1];
+//     try {
+//         const decoded = jwt.verify(token, JWT_SECRET);
+//         req.user = { id: decoded.userId };
+//         next();
+//     } catch (err) {
+//         console.error("Auth middleware error:", err);
+//         res.status(401).json({ message: "Token is not valid" });
+//     }
+// };
+
+// export default authMiddleware;
+
 import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "devsecret";
 
 const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization; // "Bearer <token>"
+  const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ message: "No token, authorization denied" });
+    return res.status(401).json({ message: "No token, authorization denied" });
   }
-    const token = authHeader.split(" ")[1];
-    try {
-        const decoded = jwt.verify(token, JWT_SECRET);
-        req.user = { id: decoded.userId };
-        next();
-    } catch (err) {
-        console.error("Auth middleware error:", err);
-        res.status(401).json({ message: "Token is not valid" });
-    }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = { _id: decoded.userId };  // ← changed id to _id
+    next();
+  } catch (err) {
+    console.error("Auth middleware error:", err);
+    res.status(401).json({ message: "Token is not valid" });
+  }
 };
 
 export default authMiddleware;
+export const protect = authMiddleware;  // ← added this line
