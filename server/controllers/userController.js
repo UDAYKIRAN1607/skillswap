@@ -5,7 +5,7 @@ import User from "../models/User.js";
 
 export const getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select("-passwordHash");
+    const user = await User.findById(req.user._id).select("-passwordHash");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -27,7 +27,7 @@ export const updateSkills = async (req, res) => {
     }
 
     const user = await User.findByIdAndUpdate(
-      req.user.id,
+      req.user._id,
       { skills },
       { new: true }
     ).select("-passwordHash");
