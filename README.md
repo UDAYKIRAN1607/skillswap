@@ -1,35 +1,42 @@
 # SkillSwap 🔄
 
-A full-stack skill exchange platform where users can offer skills they know and find skills they want to learn — powered by **Google Gemini AI** for intelligent skill matching.
+A full-stack skill exchange platform where users can offer skills they know and find skills they want to learn — powered by **Groq AI (LLaMA 3.3)** for intelligent skill matching and description generation.
 
 ![Tech Stack](https://img.shields.io/badge/React-TypeScript-blue?style=flat-square&logo=react)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-green?style=flat-square&logo=node.js)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-brightgreen?style=flat-square&logo=mongodb)
-![Gemini AI](https://img.shields.io/badge/Google-Gemini%20AI-orange?style=flat-square&logo=google)
+![Groq AI](https://img.shields.io/badge/Groq-LLaMA%203.3-orange?style=flat-square&logo=groq)
+![Vercel](https://img.shields.io/badge/Deployed-Vercel-black?style=flat-square&logo=vercel)
+![Render](https://img.shields.io/badge/Deployed-Render-blue?style=flat-square&logo=render)
+
+---
+
+## 🌐 Live Demo
+
+- 🚀 **Frontend:** https://skillswap-frontend-livid.vercel.app
+- 🔧 **Backend API:** https://skillswap-backend-18hj.onrender.com/api/health
+
+> **Note:** Backend is hosted on Render free tier — first request may take 30-60 seconds to wake up.
 
 ---
 
 ## 🚀 Features
 
 ### ✅ Implemented
+
 - User authentication (Signup & Login)
 - Secure password hashing using bcrypt
 - JWT-based authorization & protected API routes
-- Skill model — create, browse, filter, delete skills
-- Exchange request model — send, accept, reject, complete
-- RESTful API for skills, exchanges, and AI matching
+- Skill listing — create, browse, filter by category/level/type, search, delete
+- Exchange request flow — send, accept, reject, complete, cancel
+- Exchange request modal with skill selection and message
+- Dashboard with live stats (skills listed, pending requests, active exchanges)
+- RESTful API for skills, exchanges, users, and AI
 - Modular backend architecture (routes, controllers, middleware, models)
-
-### 🔄 In Progress
-- Frontend core pages — Navbar, SkillListing, Profile
-- Exchange request flow UI
-- Dashboard with stats
-
-### 📅 Coming Soon
-- AI-powered skill recommendations (Google Gemini) *(backend ready)*
-- AI description generator for skill listings
-- MongoDB seed data
-- Deployment (Render + Vercel)
+- **AI-powered skill description generator** using Groq AI (LLaMA 3.3)
+- **AI-powered personalized skill matching** with match scores and reasons
+- MongoDB seed data — 10 users and 25 skills across multiple categories
+- Fully deployed — frontend on Vercel, backend on Render
 
 ---
 
@@ -39,12 +46,19 @@ A full-stack skill exchange platform where users can offer skills they know and 
 - React.js + TypeScript
 - Tailwind CSS
 - React Router DOM
+- Fetch API
 
 ### Backend
 - Node.js + Express.js
 - MongoDB Atlas + Mongoose
 - JWT Authentication
-- Google Gemini AI (`gemini-1.5-flash`)
+- bcryptjs
+- Groq AI SDK (`llama-3.3-70b-versatile`)
+
+### Deployment
+- Frontend → Vercel
+- Backend → Render
+- Database → MongoDB Atlas (AWS Mumbai)
 
 ---
 
@@ -55,7 +69,7 @@ skillswap/
 ├── client/                  # React + TypeScript frontend
 │   └── src/
 │       ├── components/      # Navbar, SkillCard
-│       ├── pages/           # SkillListing, Profile, Exchanges, AIMatches
+│       ├── pages/           # Dashboard, SkillListing, Profile, Exchanges, AIMatches
 │       ├── App.tsx
 │       └── api.ts
 └── server/                  # Node.js + Express backend
@@ -64,6 +78,7 @@ skillswap/
     ├── middleware/          # JWT authMiddleware
     ├── models/              # User, Skill, Exchange
     ├── routes/              # authRoutes, userRoutes, skillRoutes, exchangeRoutes, aiRoutes
+    ├── seed.js              # Database seed script
     └── index.js
 ```
 
@@ -94,7 +109,7 @@ skillswap/
 | PUT | `/api/exchanges/:id/status` | Accept / Reject / Complete |
 | DELETE | `/api/exchanges/:id` | Cancel pending request |
 
-### AI (Gemini)
+### AI (Groq)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/ai/matches` | Get personalized skill recommendations |
@@ -107,7 +122,7 @@ skillswap/
 ### Prerequisites
 - Node.js v18+
 - MongoDB Atlas account
-- Google Gemini API key (free at [aistudio.google.com](https://aistudio.google.com/app/apikey))
+- Groq API key (free at [console.groq.com](https://console.groq.com))
 
 ### Backend
 ```bash
@@ -120,7 +135,7 @@ Create `server/.env`:
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-GEMINI_API_KEY=your_gemini_api_key
+GROQ_API_KEY=your_groq_api_key
 ```
 
 ```bash
@@ -134,9 +149,29 @@ npm install
 npm run dev
 ```
 
+Create `client/.env`:
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+### Seed Database (Optional)
+```bash
+cd server
+node seed.js
+```
+Creates 10 sample users and 25 skills across multiple categories for testing.
+
+---
+
+## 🔑 Test Credentials
+
+After running seed script, you can login with any seed user:
+- **Email:** `alice@example.com`
+- **Password:** `seed123456`
+
 ---
 
 ## 👨‍💻 Author
 
-**M S Uday Kiran**  
+**M S Uday Kiran**
 Full Stack Developer | [GitHub](https://github.com/UDAYKIRAN1607)
