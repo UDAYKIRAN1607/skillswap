@@ -116,7 +116,7 @@ skillswap/
 |--------|----------|-------------|
 | GET | `/api/ai/matches` | Get personalized skill recommendations |
 | POST | `/api/ai/describe` | AI-generate a skill description |
-
+| POST | `/api/ai/chat` | AI Mentor Chat — learning guidance & roadmaps |
 ---
 
 ## ⚙️ Setup & Run Locally
