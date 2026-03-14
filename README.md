@@ -33,8 +33,10 @@ A full-stack skill exchange platform where users can offer skills they know and 
 - Dashboard with live stats (skills listed, pending requests, active exchanges)
 - RESTful API for skills, exchanges, users, and AI
 - Modular backend architecture (routes, controllers, middleware, models)
+- **AI Mentor Chat** — floating chat widget powered by Groq AI for skill learning guidance, roadmaps, and career advice
 - **AI-powered skill description generator** using Groq AI (LLaMA 3.3)
 - **AI-powered personalized skill matching** with match scores and reasons
+- **Explainable AI Matches** — AI skill matching with detailed bullet-point explanations for why each match is recommended
 - MongoDB seed data — 10 users and 25 skills across multiple categories
 - Fully deployed — frontend on Vercel, backend on Render
 
