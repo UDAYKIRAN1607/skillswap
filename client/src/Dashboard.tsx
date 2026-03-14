@@ -302,6 +302,7 @@ import { apiRequest } from "./api";
 import api from "./api";
 import { useNavigate, Link } from "react-router-dom";
 import { AVAILABLE_SKILLS } from "./constants/skills";
+import AIMentorChat from "./components/AIMentorChat";
 
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -582,6 +583,7 @@ const Dashboard: React.FC = () => {
           </div>
         </section>
       </div>
+      <AIMentorChat />
     </div>
   );
 };

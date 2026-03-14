@@ -1,4 +1,3 @@
-// // src/pages/AIMatches.tsx
 // import React, { useState } from "react";
 // import Navbar from "../components/Navbar";
 // import api from "../api";
@@ -57,7 +56,7 @@
 //             AI Skill Matching
 //           </h1>
 //           <p className="text-slate-400 text-sm max-w-md mx-auto">
-//             Powered by Google Gemini — get personalized skill recommendations based on your profile and interests
+//             Powered by Groq AI — get personalized skill recommendations based on your profile and interests
 //           </p>
 //           <button
 //             onClick={fetchMatches}
@@ -74,7 +73,7 @@
 //                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
 //                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
 //                 </svg>
-//                 Analyzing with Gemini AI...
+//                 Analyzing with Groq AI...
 //               </span>
 //             ) : fetched ? "✦ Refresh Matches" : "✦ Find My Matches"}
 //           </button>
@@ -277,8 +276,15 @@ const AIMatches: React.FC = () => {
 
                   {/* AI Reason */}
                   <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/5 p-3">
-                    <p className="text-xs text-indigo-400 font-semibold mb-1">✦ WHY THIS MATCHES YOU</p>
-                    <p className="text-sm text-slate-300 leading-relaxed">{match.reason}</p>
+                    <p className="text-xs text-indigo-400 font-semibold mb-2">✦ WHY THIS MATCHES YOU</p>
+                    <ul className="space-y-1">
+                      {match.reason.split("\n").filter(line => line.trim()).map((line, idx) => (
+                        <li key={idx} className="text-sm text-slate-300 leading-relaxed flex items-start gap-1.5">
+                          <span className="text-indigo-400 mt-0.5 shrink-0">•</span>
+                          <span>{line.replace(/^•\s*/, "")}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
                   {/* Footer */}

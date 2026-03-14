@@ -1,151 +1,7 @@
-// import { GoogleGenerativeAI } from "@google/generative-ai";
-// import Skill from "../models/Skill.js";
-// import User from "../models/User.js";
-
-// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// // GET /api/ai/matches — personalized skill match recommendations
-// export const getSkillMatches = async (req, res) => {
-//   try {
-//     const currentUser = await User.findById(req.user._id);
-
-//     // Get all skills NOT belonging to current user
-//     const allSkills = await Skill.find({
-//       user: { $ne: req.user._id },
-//       isActive: true,
-//     }).populate("user", "name email bio location");
-
-//     if (allSkills.length === 0) {
-//       return res.json({
-//         success: true,
-//         matches: [],
-//         message: "No skills available from other users yet.",
-//       });
-//     }
-
-//     // Get current user's own skills
-//     const mySkills = await Skill.find({ user: req.user._id, isActive: true });
-
-//     const mySkillsSummary =
-//       mySkills.length > 0
-//         ? mySkills.map((s) => `${s.title} (${s.type}, ${s.level})`).join(", ")
-//         : "No skills listed yet";
-
-//     const userProfile = `
-//       Name: ${currentUser.name}
-//       Bio: ${currentUser.bio || "Not provided"}
-//       Skills: ${currentUser.skills?.join(", ") || "None"}
-//       My Listed Skills: ${mySkillsSummary}
-//     `;
-
-//     // Build skills list for Gemini
-//     const skillsList = allSkills.map((s, i) => ({
-//       index: i,
-//       id: s._id.toString(),
-//       title: s.title,
-//       description: s.description,
-//       category: s.category,
-//       level: s.level,
-//       type: s.type,
-//       tags: s.tags,
-//       userName: s.user.name,
-//       userBio: s.user.bio || "",
-//     }));
-
-//     const prompt = `
-// You are an intelligent skill-matching assistant for a skill exchange platform called SkillSwap.
-
-// A user wants personalized skill recommendations. Analyze their profile and match them with the most relevant skills from others.
-
-// USER PROFILE:
-// ${userProfile}
-
-// AVAILABLE SKILLS FROM OTHER USERS (JSON):
-// ${JSON.stringify(skillsList, null, 2)}
-
-// Your task:
-// 1. Select the TOP 6 most relevant skills for this user based on their profile, interests, and what they can offer in return.
-// 2. For each match, provide a brief personalized reason why it's a good fit.
-// 3. Give a match score from 1-100.
-
-// Respond ONLY with a valid JSON array (no markdown, no explanation outside JSON):
-// [
-//   {
-//     "skillId": "<skill id>",
-//     "matchScore": <number 1-100>,
-//     "reason": "<1-2 sentence personalized reason>"
-//   }
-// ]
-// `;
-
-//     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-//     const result = await model.generateContent(prompt);
-//     const text = result.response.text();
-
-//     // Parse Gemini response
-//     let aiMatches = [];
-//     try {
-//       const cleaned = text.replace(/```json|```/g, "").trim();
-//       aiMatches = JSON.parse(cleaned);
-//     } catch (parseErr) {
-//       return res.status(500).json({
-//         success: false,
-//         message: "AI response could not be parsed. Please try again.",
-//       });
-//     }
-
-//     // Enrich with full skill data
-//     const enriched = aiMatches.map((match) => {
-//       const skill = allSkills.find((s) => s._id.toString() === match.skillId);
-//       return {
-//         ...match,
-//         skill: skill || null,
-//       };
-//     }).filter((m) => m.skill !== null);
-
-//     res.json({ success: true, matches: enriched });
-//   } catch (error) {
-//     console.error("Gemini AI error:", error.message);
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
-
-// // POST /api/ai/describe — AI-generated skill description helper
-// export const generateSkillDescription = async (req, res) => {
-//   try {
-//     const { title, category, level } = req.body;
-
-//     if (!title || !category) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Title and category are required" });
-//     }
-
-//     const prompt = `
-// Write a compelling 2-3 sentence description for a skill listing on a skill exchange platform.
-
-// Skill Title: ${title}
-// Category: ${category}
-// Level: ${level || "Intermediate"}
-
-// Keep it friendly, specific, and highlight what the learner will gain. Do not use bullet points. Return only the description text, nothing else.
-// `;
-
-//     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-//     const result = await model.generateContent(prompt);
-//     const description = result.response.text().trim();
-
-//     res.json({ success: true, description });
-//   } catch (error) {
-//     console.error("Gemini AI error:", error.message);
-//     res.status(500).json({ success: false, message: error.message });
-//   }
-// };
 // import Skill from "../models/Skill.js";
 // import User from "../models/User.js";
 // import Groq from "groq-sdk";
 
-// // Helper to get Groq client (initialized lazily so env vars are loaded)
 // const getGroqClient = () => {
 //   return new Groq({ apiKey: process.env.GROQ_API_KEY });
 // };
@@ -204,7 +60,7 @@
 //       ? mySkills.map((s) => `${s.title} (${s.type}, ${s.level})`).join(", ")
 //       : "No skills listed yet";
 
-//     const skillsList = allSkills.slice(0, 20).map((s) => ({
+//     const skillsList = allSkills.slice(0, 15).map((s) => ({
 //       id: s._id.toString(),
 //       title: s.title,
 //       category: s.category,
@@ -215,24 +71,35 @@
 //     const prompt = `You are a skill-matching assistant for SkillSwap platform.
 // User: ${currentUser.name}
 // User's skills: ${mySkillsSummary}
-// Available skills from other users: ${JSON.stringify(skillsList)}
+// Available skills: ${JSON.stringify(skillsList)}
 
-// Select the TOP 6 most relevant skills for this user and respond ONLY with a valid JSON array like this:
-// [{"skillId": "<id>", "matchScore": <number 1-100>, "reason": "<1-2 sentence reason why this matches the user>"}]
+// Return ONLY a valid JSON array with no extra text, no explanation, no markdown, no code blocks.
+// Format exactly like this:
+// [{"skillId":"<id>","matchScore":<1-100>,"reason":"<short reason>"}]
 
-// Return ONLY the JSON array, no extra text, no markdown.`;
+// Pick the top 5 most relevant skills. Return ONLY the JSON array.`;
 
 //     const groq = getGroqClient();
 
 //     const completion = await groq.chat.completions.create({
 //       model: "llama-3.1-8b-instant",
 //       messages: [{ role: "user", content: prompt }],
-//       max_tokens: 600,
+//       max_tokens: 500,
+//       temperature: 0,
 //     });
 
-//     const text = completion.choices[0]?.message?.content?.trim();
-//     const cleaned = text.replace(/```json|```/g, "").trim();
-//     const aiMatches = JSON.parse(cleaned);
+//     let text = completion.choices[0]?.message?.content?.trim();
+
+//     // Robustly extract JSON array from response
+//     const jsonStart = text.indexOf("[");
+//     const jsonEnd = text.lastIndexOf("]");
+
+//     if (jsonStart === -1 || jsonEnd === -1) {
+//       throw new Error("No JSON array found in AI response");
+//     }
+
+//     const jsonString = text.substring(jsonStart, jsonEnd + 1);
+//     const aiMatches = JSON.parse(jsonString);
 
 //     const enriched = aiMatches.map((match) => ({
 //       ...match,
@@ -266,7 +133,7 @@ export const generateSkillDescription = async (req, res) => {
     const groq = getGroqClient();
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+      model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "user",
@@ -317,20 +184,28 @@ export const getSkillMatches = async (req, res) => {
     }));
 
     const prompt = `You are a skill-matching assistant for SkillSwap platform.
+
 User: ${currentUser.name}
-User's skills: ${mySkillsSummary}
-Available skills: ${JSON.stringify(skillsList)}
+User's current skills (what they offer): ${mySkillsSummary}
+Available skills from other users: ${JSON.stringify(skillsList)}
 
-Return ONLY a valid JSON array with no extra text, no explanation, no markdown, no code blocks.
+Your job: Pick the top 5 most relevant skills for this user and explain WHY each is a good match.
+
+The reason must be 2-3 bullet points starting with "•" on separate lines explaining:
+- How the user's skills relate to this match
+- Why the skill levels or categories are compatible
+- What the user would gain from this exchange
+
+Return ONLY a valid JSON array. No extra text, no markdown, no code blocks.
 Format exactly like this:
-[{"skillId":"<id>","matchScore":<1-100>,"reason":"<short reason>"}]
+[{"skillId":"<id>","matchScore":<1-100>,"reason":"• Point one\\n• Point two\\n• Point three"}]
 
-Pick the top 5 most relevant skills. Return ONLY the JSON array.`;
+Return ONLY the JSON array.`;
 
     const groq = getGroqClient();
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
+      model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 500,
       temperature: 0,
@@ -356,6 +231,46 @@ Pick the top 5 most relevant skills. Return ONLY the JSON array.`;
 
     res.json({ success: true, matches: enriched });
 
+  } catch (error) {
+    console.error("Groq AI error:", error.message);
+    res.status(500).json({ success: false, message: "AI service error: " + error.message });
+  }
+};
+
+// POST /api/ai/chat — AI Mentor Chat
+export const mentorChat = async (req, res) => {
+  try {
+    const { message, history = [] } = req.body;
+ 
+    if (!message) {
+      return res.status(400).json({ success: false, message: "Message is required" });
+    }
+ 
+    const groq = getGroqClient();
+ 
+    const messages = [
+      {
+        role: "system",
+        content: `You are an AI Mentor on SkillSwap, a skill exchange platform. 
+Help users with learning advice, skill roadmaps, and career guidance.
+Keep replies concise, practical, and encouraging.
+Use bullet points for roadmaps or step-by-step answers.
+Never go beyond 150 words in a single reply.`,
+      },
+      ...history.map((h) => ({ role: h.role, content: h.content })),
+      { role: "user", content: message },
+    ];
+ 
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages,
+      max_tokens: 300,
+      temperature: 0.7,
+    });
+ 
+    const reply = completion.choices[0]?.message?.content?.trim();
+    res.json({ success: true, reply });
+ 
   } catch (error) {
     console.error("Groq AI error:", error.message);
     res.status(500).json({ success: false, message: "AI service error: " + error.message });
