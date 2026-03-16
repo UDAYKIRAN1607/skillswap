@@ -8,12 +8,13 @@ import SkillListing from "./pages/SkillListing";
 import ExchangeRequests from "./pages/ExchangeRequests";
 import AIMatches from "./pages/AIMatches";
 import Profile from "./pages/Profile";
+import LandingPage from "./pages/LandingPage";
 
 const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/signup" element={<Signup />} />

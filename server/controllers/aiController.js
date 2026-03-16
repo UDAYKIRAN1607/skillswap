@@ -276,3 +276,51 @@ Never go beyond 150 words in a single reply.`,
     res.status(500).json({ success: false, message: "AI service error: " + error.message });
   }
 };
+
+// POST /api/ai/demo-match — Public demo match (no auth required)
+export const demoMatch = async (req, res) => {
+  try {
+    const { skill, wantToLearn } = req.body;
+ 
+    if (!skill || !wantToLearn) {
+      return res.status(400).json({ success: false, message: "skill and wantToLearn are required" });
+    }
+ 
+    const groq = getGroqClient();
+ 
+    const prompt = `You are a skill-matching AI on SkillSwap platform.
+ 
+A user offers: ${skill}
+A user wants to learn: ${wantToLearn}
+ 
+Generate a skill match result with:
+1. A match score between 60-99
+2. Exactly 3 bullet points explaining why this is a good skill match
+ 
+Return ONLY valid JSON. No extra text, no markdown, no code blocks.
+Format exactly like this:
+{"matchScore": <number>, "reasons": ["reason 1", "reason 2", "reason 3"]}`;
+ 
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 200,
+      temperature: 0.7,
+    });
+ 
+    let text = completion.choices[0]?.message?.content?.trim();
+ 
+    const jsonStart = text.indexOf("{");
+    const jsonEnd = text.lastIndexOf("}");
+    if (jsonStart === -1 || jsonEnd === -1) {
+      throw new Error("No JSON found in AI response");
+    }
+ 
+    const parsed = JSON.parse(text.substring(jsonStart, jsonEnd + 1));
+    res.json({ success: true, matchScore: parsed.matchScore, reasons: parsed.reasons });
+ 
+  } catch (error) {
+    console.error("Groq AI error:", error.message);
+    res.status(500).json({ success: false, message: "AI service error: " + error.message });
+  }
+};
